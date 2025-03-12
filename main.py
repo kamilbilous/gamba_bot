@@ -3,7 +3,9 @@ import os
 import re
 from roulette import game
 
-bot = discord.Client()
+intents = discord.Intents.default()
+intents.messages = True
+bot = discord.Client(intents=intents)
 bets = r"^\d+$"
 valid_colors = ["red", "black", "green"]
 @bot.event
