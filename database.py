@@ -48,7 +48,7 @@ def insert_users_into_db(users):
 
     for member in users:
         name = member.name
-        balance = 1000
+        balance = 0
 
         try:
             cursor.execute("INSERT INTO users (name, balance) VALUES (?, ?)", (name, balance))

@@ -23,6 +23,10 @@ async def on_guild_join(guild):
     insert_server(guild)
 
 @bot.event
+async def on_member_join(member):
+    insert_users_into_db(member)
+
+@bot.event
 async def on_ready():
     print(f'We have logged in as {bot.user}')
     guild = bot.get_guild(GUILD)
