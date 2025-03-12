@@ -2,12 +2,11 @@ import discord
 import os
 import re
 
-from database import insert_users_into_db, insert_server
+from database import insert_users_into_db, insert_server, get_server_id
 from roulette import game
 from keep_alive import keep_alive
 from dotenv import load_dotenv
 
-GUILD = 1349192045314703370
 # Load environment variables from .env file
 load_dotenv()
 intents = discord.Intents.default()
@@ -29,10 +28,13 @@ async def on_member_join(member):
 @bot.event
 async def on_ready():
     print(f'We have logged in as {bot.user}')
-    guild = bot.get_guild(GUILD)
-    if guild:
-        members = guild.members
-        insert_users_into_db(members)
+    for guild in bot.guilds:
+        GUILD = get_server_id(guild.name)
+        print(f"Bot is connected to {guild.name} (ID: {GUILD})")
+
+        # Fetch and insert all members into the database
+        insert_users_into_db(guild.members)
+
 
 @bot.event
 async def on_message(message):
