@@ -2,15 +2,22 @@ import discord
 import os
 import re
 from roulette import game
+from keep_alive import keep_alive
+from dotenv import load_dotenv
 
+# Load environment variables from .env file
+load_dotenv()
 intents = discord.Intents.default()
 intents.messages = True
+intents.guilds = True
+intents.members = True
+intents.message_content = True
 bot = discord.Client(intents=intents)
 bets = r"^\d+$"
 valid_colors = ["red", "black", "green"]
 @bot.event
 async def on_ready():
-    print('We have logged in as {bot.user}')
+    print(f'We have logged in as {bot.user}')
 
 @bot.event
 async def on_message(message):
