@@ -11,7 +11,7 @@ def init_db():
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           name TEXT UNIQUE,
           balance INTEGER DEFAULT 100
-      )''')  # << Fixed: Removed the extra semicolon inside the string
+      )''')
 
     # Create the stats table
     cursor.execute('''
@@ -23,6 +23,38 @@ def init_db():
           winrate REAL DEFAULT 0.0,
           FOREIGN KEY (name) REFERENCES users (name)
       )''')
+    cursor.execute('''
+            CREATE TABLE IF NOT EXISTS servers (
+                id INTEGER PRIMARY KEY,
+                name TEXT UNIQUE
+            )
+        ''')
+    conn.commit()
+    conn.close()
+
+def insert_server(guild):
+    conn = connect()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("INSERT INTO servers (id, name) VALUES (?, ?)", (guild.id, guild.name))
+    except sqlite3.IntegrityError:
+        pass
+    conn.commit()
+    conn.close()
+
+def insert_users_into_db(users):
+    conn = connect()
+    cursor = conn.cursor()
+
+    for member in users:
+        name = member.name
+        balance = 1000
+
+        try:
+            cursor.execute("INSERT INTO users (name, balance) VALUES (?, ?)", (name, balance))
+        except sqlite3.IntegrityError:
+            pass
+
     conn.commit()
     conn.close()
 

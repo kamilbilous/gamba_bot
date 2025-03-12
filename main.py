@@ -1,10 +1,13 @@
 import discord
 import os
 import re
+
+from database import insert_users_into_db, insert_server
 from roulette import game
 from keep_alive import keep_alive
 from dotenv import load_dotenv
 
+GUILD = 1349192045314703370
 # Load environment variables from .env file
 load_dotenv()
 intents = discord.Intents.default()
@@ -16,8 +19,16 @@ bot = discord.Client(intents=intents)
 bets = r"^\d+$"
 valid_colors = ["red", "black", "green"]
 @bot.event
+async def on_guild_join(guild):
+    insert_server(guild)
+
+@bot.event
 async def on_ready():
     print(f'We have logged in as {bot.user}')
+    guild = bot.get_guild(GUILD)
+    if guild:
+        members = guild.members
+        insert_users_into_db(members)
 
 @bot.event
 async def on_message(message):
