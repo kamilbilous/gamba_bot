@@ -84,3 +84,5 @@ def update_stats(name, won):
 
     conn.commit()
     conn.close()
+
+init_db()
