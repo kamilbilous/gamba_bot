@@ -54,19 +54,21 @@ async def on_message(message):
                     username = message.author.name
 
                     # Place the bet and get the result
-                    result = game(username, bet_amount, bet_color,auth_id)
+                    result = await game(message.channel,username, bet_amount, bet_color,auth_id)
 
-                    # Send the result to the channel
-                    await message.channel.send(result)
+                    if isinstance(result, discord.Embed):  # If the result is an embed, send the embed
+                        await message.reply(embed=result)
+                    else:  # Otherwise, send the error message (string)
+                        await message.reply(result)
                 else:
                     # Send an error message if the color is invalid
-                    await message.channel.send('❌ Invalid color. Please choose from "red", "black", or "green".')
+                    await message.reply('❌ Invalid color. Please choose from "red", "black", or "green".')
             else:
                 # Send an error message if the bet amount is invalid
-                await message.channel.send('❌ Invalid bet amount. Please enter a valid number.')
+                await message.reply('❌ Invalid bet amount. Please enter a valid number.')
         else:
             # Send an error message if the format is incorrect
-             await message.channel.send('❌ Invalid command format. Use: $roulette <color> <amount>')
+             await message.reply('❌ Invalid command format. Use: $roulette <color> <amount>')
 
 keep_alive()
 bot.run(os.getenv('TOKEN'))
