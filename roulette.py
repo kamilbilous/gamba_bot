@@ -1,16 +1,15 @@
 import random
-
 import database
 import discord
 
 
-async def game(ctx,username, bet, choice, auth_id):
+async def game(username, bet, choice, auth_id):
     user = database.get_user(username)
 
     user_id, name, balance = user
 
     if balance < bet:
-        return f"❌ <@{auth_id}>, you don't have enough balance to place this bet! Your balance: {balance}."
+        return f"❌ <@{auth_id}>, you don't have enough balance to place this bet! Your balance: {balance} sancoins."
 
     database.update_balance(name, -bet)
 
@@ -31,7 +30,7 @@ async def game(ctx,username, bet, choice, auth_id):
             new_balance = database.get_user(name)[2]
             embed = discord.Embed(
                 title = "Roulette result",
-                description = f"The ball landed on **{winning_color}**! You won **{win_amount}**. Your new balance is **{new_balance}**.",
+                description = f"The ball landed on **{winning_color}**! You won **{win_amount} sancoins**. Your new balance is **{new_balance} sancoins**.",
                 color = discord.Color.green()
             )
 
@@ -43,7 +42,7 @@ async def game(ctx,username, bet, choice, auth_id):
             new_balance = database.get_user(name)[2]
             embed = discord.Embed(
                 title="Roulette result",
-                description=f"The ball landed on **{winning_color}**! You lost **{bet}**. Your new balance is **{new_balance}**.",
+                description=f"The ball landed on **{winning_color}**! You lost **{bet} sancoins**. Your new balance is **{new_balance} sancoins**.",
                 color=discord.Color.red()
             )
             return embed
