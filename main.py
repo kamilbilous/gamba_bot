@@ -6,8 +6,9 @@ from database import insert_users_into_db, insert_server
 from roulette import game
 from keep_alive import keep_alive
 from dotenv import load_dotenv
+from coinflip import coinflip
 
-# Load environment variables from .env file
+
 load_dotenv()
 intents = discord.Intents.default()
 intents.messages = True
@@ -17,6 +18,7 @@ intents.message_content = True
 bot = discord.Client(intents=intents)
 bets = r"^\d+$"
 valid_colors = ["red", "black", "green"]
+valid_choices = ["heads", "tails"]
 @bot.event
 async def on_guild_join(guild):
     insert_server(guild)
@@ -50,25 +52,43 @@ async def on_message(message):
             if re.fullmatch(bets, bet_value):
                 bet_amount = int(bet_value)
                 if bet_color in valid_colors:
-                    # Get the username of the person who sent the message
                     username = message.author.name
 
-                    # Place the bet and get the result
-                    result = await game(message.channel,username, bet_amount, bet_color,auth_id)
+                    result = await game(username, bet_amount, bet_color,auth_id)
 
-                    if isinstance(result, discord.Embed):  # If the result is an embed, send the embed
+                    if isinstance(result, discord.Embed):
                         await message.reply(embed=result)
-                    else:  # Otherwise, send the error message (string)
+                    else:
                         await message.reply(result)
                 else:
-                    # Send an error message if the color is invalid
-                    await message.reply('❌ Invalid color. Please choose from "red", "black", or "green".')
+                    await message.reply('❌ Invalid color. Please choose from **red**, **black** or **green**.')
             else:
-                # Send an error message if the bet amount is invalid
                 await message.reply('❌ Invalid bet amount. Please enter a valid number.')
         else:
-            # Send an error message if the format is incorrect
-             await message.reply('❌ Invalid command format. Use: $roulette <color> <amount>')
+             await message.reply('❌ Invalid command format. Use: $roulette **color** **amount**')
+    if message.content.startswith('$coinflip ') or message.content.startswith('$cf '):
+        auth_id = message.author.id
+        content = message.content[len("$coinflip "):].strip() if message.content.startswith('$coinflip ') else message.content[len("$cf "):].strip()
+        parts = content.split()
+        if len(parts) == 2:
+            bet = parts[0].lower()
+            bet_value = parts[1]
+            if re.fullmatch(bets, bet_value):
+                bet_amount = int(bet_value)
+                if bet in valid_choices:
+                    username = message.author.name
+                    result = await coinflip(username, bet_amount,bet,auth_id)
+
+                    if isinstance(result, discord.Embed):
+                        await message.reply(embed=result)
+                    else:
+                        await message.reply(result)
+                else:
+                    await message.reply('❌ Invalid choice. Please choose **heads** or **tails**.')
+            else:
+                await message.reply('❌ Invalid bet amount. Please enter a valid number.')
+        else:
+            await message.reply('❌ Invalid command format. Use: $coinflip **side** **amount**')
 
 keep_alive()
 bot.run(os.getenv('TOKEN'))
