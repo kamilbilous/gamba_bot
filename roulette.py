@@ -1,8 +1,10 @@
 import random
+
 import database
+import discord
 
 
-def game(username, bet, choice, auth_id):
+async def game(ctx,username, bet, choice, auth_id):
     user = database.get_user(username)
 
     user_id, name, balance = user
@@ -27,14 +29,23 @@ def game(username, bet, choice, auth_id):
 
             # Fetch updated balance
             new_balance = database.get_user(name)[2]
+            embed = discord.Embed(
+                title = "Roulette result",
+                description = f"The ball landed on **{winning_color}**! You won **{win_amount}**. Your new balance is **{new_balance}**.",
+                color = discord.Color.green()
+            )
 
-            return f"🎉 <@{auth_id}> bet on {choice} and won! 🎊 The ball landed on {winning_color}. New balance: {new_balance}"
+            return embed
         else:
             database.update_stats(name, won=False)
 
             # Fetch updated balance
             new_balance = database.get_user(name)[2]
-
-            return f"💀 <@{auth_id}> bet on {choice} but lost. The ball landed on {winning_color}. New balance: {new_balance}"
+            embed = discord.Embed(
+                title="Roulette result",
+                description=f"The ball landed on **{winning_color}**! You lost **{bet}**. Your new balance is **{new_balance}**.",
+                color=discord.Color.red()
+            )
+            return embed
 
     return "❌ Invalid bet choice. Please choose red, black, or green."
