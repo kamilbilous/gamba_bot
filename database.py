@@ -42,14 +42,6 @@ def insert_server(guild):
     conn.commit()
     conn.close()
 
-def get_server_id(name):
-    conn = connect()
-    cursor = conn.cursor()
-    cursor.execute("SELECT id FROM servers WHERE name = ?", (name,))
-    server = cursor.fetchone()
-    conn.close()
-
-    return server[0] if server else None
 
 def insert_users_into_db(users):
     conn = connect()

@@ -2,7 +2,7 @@ import discord
 import os
 import re
 
-from database import insert_users_into_db, insert_server, get_server_id
+from database import insert_users_into_db, insert_server
 from roulette import game
 from keep_alive import keep_alive
 from dotenv import load_dotenv
@@ -29,7 +29,7 @@ async def on_member_join(member):
 async def on_ready():
     print(f'We have logged in as {bot.user}')
     for guild in bot.guilds:
-        GUILD = get_server_id(guild.name)
+        GUILD = guild.id
         print(f"Bot is connected to {guild.name} (ID: {GUILD})")
 
         # Fetch and insert all members into the database
@@ -41,7 +41,7 @@ async def on_message(message):
     if message.author == bot.user:
         return
     if message.content.startswith('$roulette '):
-        username = message.author.name
+        auth_id = message.author.id
         content = message.content[len("$roulette "):].strip()
         parts = content.split()
         if len(parts) == 2:
@@ -54,7 +54,7 @@ async def on_message(message):
                     username = message.author.name
 
                     # Place the bet and get the result
-                    result = game(username, bet_amount, bet_color)
+                    result = game(username, bet_amount, bet_color,auth_id)
 
                     # Send the result to the channel
                     await message.channel.send(result)
