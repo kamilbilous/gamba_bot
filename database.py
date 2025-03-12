@@ -7,21 +7,22 @@ def init_db():
     cursor = conn.cursor()
 
     cursor.execute(''' 
-    CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name VARCHAR(255) ,
-        balance INTEGER 
-    );
-    CREATE TABLE IF NOT EXISTS stats (
-        id INTEGER PRIMARY KEY,
-        name VARCHAR(255) ,
-        wins INTEGER DEFAULT 0,
-        losses INTEGER DEFAULT 0,
-        winrate REAL DEFAULT 0.0,
-        FOREIGN KEY (id) REFERENCES users (id),
-        FOREIGN KEY (name) REFERENCES users (name)
-    );
-    ''')
+      CREATE TABLE IF NOT EXISTS users (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT UNIQUE,
+          balance INTEGER DEFAULT 100
+      )''')  # << Fixed: Removed the extra semicolon inside the string
+
+    # Create the stats table
+    cursor.execute('''
+      CREATE TABLE IF NOT EXISTS stats (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT UNIQUE,
+          wins INTEGER DEFAULT 0,
+          losses INTEGER DEFAULT 0,
+          winrate REAL DEFAULT 0.0,
+          FOREIGN KEY (name) REFERENCES users (name)
+      )''')
     conn.commit()
     conn.close()
 
