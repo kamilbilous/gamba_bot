@@ -1,6 +1,7 @@
 import discord
 import os
 import re
+from discord.ext import commands
 
 from database import insert_users_into_db, insert_server
 from roulette import game
@@ -15,7 +16,7 @@ intents.messages = True
 intents.guilds = True
 intents.members = True
 intents.message_content = True
-bot = discord.Client(intents=intents)
+bot = commands.Bot(command_prefix="$", intents=intents)
 bets = r"^\d+$"
 valid_colors = ["red", "black", "green"]
 valid_choices = ["heads", "tails"]
@@ -38,7 +39,7 @@ async def on_ready():
         insert_users_into_db(guild.members)
 
 
-@bot.event
+@bot.command()
 async def on_message(message):
     if message.author == bot.user:
         return
