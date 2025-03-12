@@ -68,5 +68,6 @@ async def on_message(message):
             # Send an error message if the format is incorrect
              await message.channel.send('❌ Invalid command format. Use: $roulette <color> <amount>')
 
-
+keep_alive()
 bot.run(os.getenv('TOKEN'))
+

@@ -1,6 +1,5 @@
 import random
 import database
-import discord
 
 
 def game(username, bet, choice, auth_id):
