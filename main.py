@@ -5,6 +5,7 @@ import sqlite3
 from discord.ext import commands,tasks
 import time
 from database import insert_users_into_db, insert_server, get_user, update_xp, get_stats, get_level, get_balance,update_balance
+from shop import shop_main_page, buy_tip, buy_millionaire, buy_pic_perms, buy_cannon_minion
 from level import level_up
 from roulette import game
 from dotenv import load_dotenv
@@ -106,7 +107,9 @@ async def on_message(message):
         "$stats": handle_stats,
         "$help" : handle_help,
         "$addmoney" : handle_addmoney,
-        "$resetdb" : resetdb
+        "$resetdb" : resetdb,
+        "$shop" : handle_shop,
+        "$buy" : handle_buy
     }
 
     # Detect command and execute corresponding function
@@ -114,6 +117,23 @@ async def on_message(message):
         if content.startswith(command):
             await handler(message, username, auth_id, content[len(command):].strip())
             return
+async def handle_shop(message):
+    await shop_main_page(message)
+async def handle_buy(message,username,content):
+    parts = content.split()
+    if len(parts) != 1:
+        await message.reply("❌ Invalid format. Use: $buy <product number>")
+    product = parts[0]
+    if product == "1":
+        await buy_pic_perms(message,username)
+    elif product == "2":
+        await buy_cannon_minion(message,username)
+    elif product == "3":
+        await buy_millionaire(message,username)
+    elif product == "4":
+        await buy_tip(message,username)
+    else:
+        await message.reply("❌ Invalid choice. Please choose 1, 2, 3 or 4")
 
 async def handle_addmoney(message, username, auth_id, content):
     if ALLOWED_ROLE_ID not in [role.id for role in message.author.roles]:
@@ -141,7 +161,7 @@ async def handle_addmoney(message, username, auth_id, content):
     update_balance(member.name, amount)
     new_balance = get_balance(member.name)[0]
 
-    await message.reply(f"✅ Successfully added {amount} sancoins to {member.mention}. New balance: {new_balance}")
+    await message.reply(f"✅ Successfully added **{amount} sancoins** to {member.mention}. New balance: **{new_balance} sancoins**")
 
 
 def parse_bet_command(content):
@@ -243,20 +263,8 @@ async def handle_stats(message, username, *_):
     )
     await message.reply(embed=embed)
 
-async def addmoney(ctx, member: discord.Member, amount: int):
 
-    if ALLOWED_ROLE_ID not in [role.id for role in ctx.author.roles]:
-        await ctx.reply("❌ You don't have permission to use this command.")
-        return
 
-    if not get_user(member.name):  # Check if the target user exists in the database
-        await ctx.reply(f"❌ User `{member.name}` does not exist.")
-        return
-
-    update_balance(member.name, amount)
-    new_balance = get_balance(member.name)[0]
-
-    await ctx.reply(f"✅ Successfully added {amount} sancoins to {member.mention}. New balance: {new_balance}")
 
 async def resetdb(ctx):
     if ALLOWED_ROLE_ID not in [role.id for role in ctx.author.roles]:
