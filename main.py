@@ -169,7 +169,8 @@ def parse_bet_command(content):
     if len(parts) != 2:
         return None, None
     bet_choice, bet_value = parts[0].lower(), parts[1]
-    return bet_choice, bet_value if re.fullmatch(bets, bet_value) else None
+    if re.fullmatch(bets, bet_value) or bet_value == "all":
+        return bet_choice, bet_value
 
 
 
@@ -196,11 +197,6 @@ async def handle_roulette(message, username, auth_id, content):
     bet_choice, bet_value = parse_bet_command(content)
     if bet_value == "all":
         bet_value = get_balance(username)[0]
-    try:
-        bet_value = int(bet_value)  # Ensure bet value is an integer
-    except ValueError:
-        await message.reply("❌ Bet amount must be a number or 'all'.")
-        return
 
     if bet_value <= 0:
         await message.reply("❌ You must bet a positive amount.")
