@@ -10,7 +10,9 @@ def init_db():
       CREATE TABLE IF NOT EXISTS users (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           name TEXT UNIQUE,
-          balance INTEGER DEFAULT 100
+          balance INTEGER DEFAULT 0,
+          level INTEGER DEFAULT 1,
+          xp INTEGER DEFAULT 0,
       )''')
 
     # Create the stats table
@@ -18,10 +20,15 @@ def init_db():
       CREATE TABLE IF NOT EXISTS stats (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           name TEXT UNIQUE,
+          level INTEGER DEFAULT 1,
+          xp INTEGER DEFAULT 0,
           wins INTEGER DEFAULT 0,
           losses INTEGER DEFAULT 0,
           winrate REAL DEFAULT 0.0,
-          FOREIGN KEY (name) REFERENCES users (name)
+          FOREIGN KEY (name) REFERENCES users (name),
+          foreign key (level) REFERENCES users (level),
+          FOREIGN KEY (xp) REFERENCES users (xp),
+          FOREIGN KEY (level) REFERENCES users (level),
       )''')
     cursor.execute('''
             CREATE TABLE IF NOT EXISTS servers (
@@ -31,6 +38,9 @@ def init_db():
         ''')
     conn.commit()
     conn.close()
+
+
+
 
 def insert_server(guild):
     conn = connect()
@@ -74,7 +84,21 @@ def get_user(name):
 
     conn.close()
     return user
+def get_level(name):
+    conn = connect()
+    cursor = conn.cursor()
+    cursor.execute("SELECT level FROM users WHERE name = ?", (name,))
+    user = cursor.fetchone()
+    conn.close()
+    return user
 
+def get_balance(name):
+    conn = connect()
+    cursor = conn.cursor()
+    cursor.execute("SELECT balance FROM users WHERE name = ?", (name,))
+    user = cursor.fetchone()
+    conn.close()
+    return user
 
 # Fetch or create user stats
 def get_stats(name):
@@ -85,8 +109,8 @@ def get_stats(name):
     stats = cursor.fetchone()
 
     if stats is None:
-        cursor.execute("INSERT INTO stats (id, name, wins, losses, winrate) VALUES (?, ?, ?, ?, ?)",
-                       (get_user(name)[0], name, 0, 0, 0.0))
+        cursor.execute("INSERT INTO stats (id, name,level,xp, wins, losses, winrate) VALUES (?, ?, ?, ?, ?)",
+                       (get_user(name)[0], name, 0,0,0, 0, 0.0))
         conn.commit()
         return get_stats(name)  # Fetch again
 
@@ -102,6 +126,18 @@ def update_balance(name, amount):
     conn.commit()
     conn.close()
 
+def update_level(name):
+    conn = connect()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE users SET level = level + 1 WHERE name = ?", (name,))
+    conn.commit()
+    conn.close()
+def update_xp(name, xp_gain):
+    conn = connect()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE users SET xp = xp + ? WHERE name = ?", (xp_gain, name))
+    conn.commit()
+    conn.close()
 
 # Update stats
 def update_stats(name, won):

@@ -9,7 +9,7 @@ async def game(username, bet, choice, auth_id):
     user_id, name, balance = user
 
     if balance < bet:
-        return f"❌ <@{auth_id}>, you don't have enough balance to place this bet! Your balance: {balance} sancoins."
+        return f"❌ <@{auth_id}>, you don't have enough sancoins to place this bet! Your balance: {balance} sancoins."
 
     database.update_balance(name, -bet)
 
