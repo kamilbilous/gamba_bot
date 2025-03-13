@@ -12,7 +12,7 @@ def init_db():
           name TEXT UNIQUE,
           balance INTEGER DEFAULT 0,
           level INTEGER DEFAULT 1,
-          xp INTEGER DEFAULT 0,
+          xp INTEGER DEFAULT 0
       )''')
 
     # Create the stats table
@@ -28,7 +28,7 @@ def init_db():
           FOREIGN KEY (name) REFERENCES users (name),
           foreign key (level) REFERENCES users (level),
           FOREIGN KEY (xp) REFERENCES users (xp),
-          FOREIGN KEY (level) REFERENCES users (level),
+          FOREIGN KEY (level) REFERENCES users (level)
       )''')
     cursor.execute('''
             CREATE TABLE IF NOT EXISTS servers (
