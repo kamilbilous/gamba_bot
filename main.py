@@ -6,7 +6,6 @@ import time
 from database import insert_users_into_db, insert_server, get_user, update_xp, get_stats, get_level, get_balance
 from level import level_up
 from roulette import game
-from keep_alive import keep_alive
 from dotenv import load_dotenv
 from coinflip import coinflip
 from work import work
@@ -169,6 +168,5 @@ async def on_message(message):
         )
         await message.reply(embed=embed)
 
-keep_alive()
 bot.run(os.getenv('TOKEN'))
 
