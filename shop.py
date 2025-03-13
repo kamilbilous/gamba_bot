@@ -25,7 +25,9 @@ async def buy_pic_perms(message,username):
     else:
         if pic_perms not in [role.id for role in message.author.roles]:
             update_balance(username, -amount)
-            await message.author.add_roles(pic_perms)
+            guild = message.guild
+            role = discord.utils.get(guild.roles, id=pic_perms)
+            await message.author.add_roles(role)
             embed = discord.Embed(
                 title="**Success**",
                 description="You have been granted pic perms!",
@@ -43,7 +45,9 @@ async def buy_cannon_minion(message,username):
     else:
         if cannon_minion not in [role.id for role in message.author.roles]:
             update_balance(username, -amount)
-            await message.author.add_roles(cannon_minion)
+            guild = message.guild
+            role = discord.utils.get(guild.roles, id=cannon_minion)
+            await message.author.add_roles(role)
             embed = discord.Embed(
                 title="**Success**",
                 description="You have been granted a cannon minion!",
@@ -61,7 +65,9 @@ async def buy_millionaire(message,username):
     else:
         if millionaire not in [role.id for role in message.author.roles]:
             update_balance(username,-amount)
-            await message.author.add_roles(millionaire)
+            guild = message.guild
+            role = discord.utils.get(guild.roles, id=millionaire)
+            await message.author.add_roles(role)
             embed = discord.Embed(
                 title="**Success**",
                 description="You have become a millionaire!",

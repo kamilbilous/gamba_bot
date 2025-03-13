@@ -123,6 +123,10 @@ async def handle_buy(message, username, auth_id, content):
     parts = content.split()
     if len(parts) != 1:
         await message.reply("❌ Invalid format. Use: $buy <product number>")
+    if not parts:
+        await message.reply("❌ Invalid command usage. Please specify an item to buy.")
+        return
+
     product = parts[0]
     if product == "1":
         await buy_pic_perms(message,username)
