@@ -24,6 +24,7 @@ bets = r"^\d+$"
 valid_colors = ["red", "black", "green"]
 valid_choices = ["heads", "tails"]
 user_voice_times = {}
+user_last_xp_update = {}
 @bot.event
 async def on_guild_join(guild):
     insert_server(guild)
@@ -49,6 +50,7 @@ async def on_voice_state_update(member, before, after):
 
     if before.channel is None and after.channel is not None:
         user_voice_times[name] = time.time()
+        user_last_xp_update[name] = time.time()
 
 
 @tasks.loop(seconds=5)  # Loop every 5 seconds
@@ -61,9 +63,14 @@ async def update_xp_loop():
             user_id, name, balance, level, xp = user
             current_time = time.time()
             duration = current_time - join_time
-            xp_gained = duration // 15
+            if name in user_last_xp_update:
+                last_update_time = user_last_xp_update[name]
+                elapsed_since_last_update = current_time - last_update_time
 
-            update_xp(name, xp_gained)
+                if elapsed_since_last_update >= 15:
+                    xp_gained = duration // 15
+                    update_xp(name, xp_gained)
+                    user_last_xp_update[name] = current_time
         if await level_up(name):
             member = discord.utils.get(bot.get_all_members(), name=name)
             curr_level = get_level(name)[0]

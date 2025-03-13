@@ -5,7 +5,7 @@ import discord
 async def coinflip(username, bet, choice, auth_id):
     user = database.get_user(username)
 
-    user_id, name, balance, level, xp = user
+    user_id, name, level, balance, xp = user
     if balance < bet:
         return f"❌ <@{auth_id}>, you don't have enough sancoins to place this bet! Your balance: {balance} sancoins."
 
