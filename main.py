@@ -90,83 +90,100 @@ async def update_xp_loop():
 async def on_message(message):
     if message.author == bot.user:
         return
-    if message.content.startswith('$roulette '):
-        auth_id = message.author.id
-        content = message.content[len("$roulette "):].strip()
-        parts = content.split()
-        if len(parts) == 2:
-            bet_color = parts[0].lower()
-            bet_value = parts[1]
-            if re.fullmatch(bets, bet_value):
-                bet_amount = int(bet_value)
-                if bet_color in valid_colors:
-                    username = message.author.name
 
-                    result = await game(username, bet_amount, bet_color,auth_id)
+    content = message.content.lower().strip()
+    username = message.author.name
+    auth_id = message.author.id
 
-                    if isinstance(result, discord.Embed):
-                        await message.reply(embed=result)
-                    else:
-                        await message.reply(result)
-                else:
-                    await message.reply('❌ Invalid color. Please choose from **red**, **black** or **green**.')
-            else:
-                await message.reply('❌ Invalid bet amount. Please enter a valid number.')
-        else:
-             await message.reply('❌ Invalid command format. Use: $roulette **color** **amount**')
-    if message.content.startswith('$coinflip ') or message.content.startswith('$cf '):
-        auth_id = message.author.id
-        content = message.content[len("$coinflip "):].strip() if message.content.startswith('$coinflip ') else message.content[len("$cf "):].strip()
-        parts = content.split()
-        if len(parts) == 2:
-            bet = parts[0].lower()
-            bet_value = parts[1]
-            if re.fullmatch(bets, bet_value):
-                bet_amount = int(bet_value)
-                if bet in valid_choices:
-                    username = message.author.name
-                    result = await coinflip(username, bet_amount,bet,auth_id)
+    # Command handlers dictionary
+    command_handlers = {
+        "$roulette": handle_roulette,
+        "$coinflip": handle_coinflip,
+        "$cf": handle_coinflip,
+        "$balance": handle_balance,
+        "$bal": handle_balance,
+        "$work": handle_work,
+        "$stats": handle_stats
+    }
 
-                    if isinstance(result, discord.Embed):
-                        await message.reply(embed=result)
-                    else:
-                        await message.reply(result)
-                else:
-                    await message.reply('❌ Invalid choice. Please choose **heads** or **tails**.')
-            else:
-                await message.reply('❌ Invalid bet amount. Please enter a valid number.')
-        else:
-            await message.reply('❌ Invalid command format. Use: $coinflip **side** **amount**')
-    if message.content.startswith('$balance') or message.content.startswith('$bal'):
-        auth_id = message.author.id
-        username = message.author.name
-        content = message.content[len("$balance "):].strip() if message.content.startswith('$balance ') else message.content[len("$bal "):].strip()
-        parts = content.split()
-        if len(parts) == 0:
-            balance = get_balance(username)
-            embed = discord.Embed(
-                title="**BALANCE**",
-                description=f"Your balance is **{balance}**!",
-            )
-            await message.reply(embed=embed)
-    if message.content.startswith('$work'):
-        username = message.author.name
-        result = await work(username)
+    # Detect command and execute corresponding function
+    for command, handler in command_handlers.items():
+        if content.startswith(command):
+            await handler(message, username, auth_id, content[len(command):].strip())
+            return  # Prevent further processing
+
+
+def parse_bet_command(content):
+    parts = content.split()
+    if len(parts) != 2:
+        return None, None
+    bet_choice, bet_value = parts[0].lower(), parts[1]
+    return bet_choice, bet_value if re.fullmatch(bets, bet_value) else None
+
+
+
+async def reply_with_result(message, result):
+    if isinstance(result, discord.Embed):
+        await message.reply(embed=result)
+    else:
         await message.reply(result)
-    if message.content.startswith('$stats '):
-        username = message.author.name
-        stats = get_stats(username)
-        xp_needed = 100 * stats[2]
-        embed = discord.Embed(
-            title="**STATS**",
-            description=f"**Name** : {stats[1]} "
-                        f"**Level** : {stats[2]} "
-                        f"**XP** : {stats[3]} / {xp_needed}"
-                        f"**Wins** : {stats[4]}"
-                        f"**Losses : {stats[5]}"
-                        f"**Winrate : {stats[6]} ",
+
+
+
+async def handle_roulette(message, username, auth_id, content):
+    bet_choice, bet_value = parse_bet_command(content)
+    if not bet_value:
+        await message.reply("❌ Invalid command format. Use: `$roulette <color> <amount>`")
+        return
+
+    if bet_choice not in valid_colors:
+        await message.reply("❌ Invalid color. Choose **red**, **black**, or **green**.")
+        return
+
+    result = await game(username, int(bet_value), bet_choice, auth_id)
+    await reply_with_result(message, result)
+
+
+async def handle_coinflip(message, username, auth_id, content):
+    bet_choice, bet_value = parse_bet_command(content)
+    if not bet_value:
+        await message.reply("❌ Invalid command format. Use: `$coinflip <heads/tails> <amount>`")
+        return
+
+    if bet_choice not in valid_choices:
+        await message.reply("❌ Invalid choice. Choose **heads** or **tails**.")
+        return
+
+    result = await coinflip(username, int(bet_value), bet_choice, auth_id)
+    await reply_with_result(message, result)
+
+
+async def handle_balance(message, username, *_):
+    balance = get_balance(username)
+    embed = discord.Embed(title="**BALANCE**", description=f"Your balance is **{balance}**!")
+    await message.reply(embed=embed)
+
+
+async def handle_work(message, username, *_):
+    result = await work(username)
+    await reply_with_result(message, result)
+
+
+async def handle_stats(message, username, *_):
+    stats = get_stats(username)
+    xp_needed = 100 * stats[2]
+    embed = discord.Embed(
+        title="**STATS**",
+        description=(
+            f"**Name**: {stats[1]}\n"
+            f"**Level**: {stats[2]}\n"
+            f"**XP**: {stats[3]} / {xp_needed}\n"
+            f"**Wins**: {stats[4]}\n"
+            f"**Losses**: {stats[5]}\n"
+            f"**Winrate**: {stats[6]}%"
         )
-        await message.reply(embed=embed)
+    )
+    await message.reply(embed=embed)
 
 bot.run(os.getenv('TOKEN'))
 
