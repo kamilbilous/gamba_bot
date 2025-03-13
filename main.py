@@ -187,9 +187,9 @@ async def handle_stats(message, username, *_):
             f"**Level**: {stats[2]}\n"
             f"**Balance**: {get_balance(username)[0]} sancoins\n"
             f"**XP**: {stats[4]} / {xp_needed}\n"
-            f"**Wins**: {stats[5]}\n"
-            f"**Losses**: {stats[6]}\n"
-            f"**Winrate**: {stats[7]}%"
+            f"**Wins**: {stats_2[5]}\n"
+            f"**Losses**: {stats_2[6]}\n"
+            f"**Winrate**: {stats_2[7]}%"
         ),
         color=discord.Color.brand_green()
     )
