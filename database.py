@@ -76,7 +76,7 @@ def get_user(name):
     conn = connect()
     cursor = conn.cursor()
 
-    cursor.execute("SELECT id, name, balance, level,xp FROM users WHERE name = ?", (name,))
+    cursor.execute("SELECT id, name, level, balance,xp FROM users WHERE name = ?", (name,))
     user = cursor.fetchone()
 
     if user is None:
@@ -131,7 +131,7 @@ def update_balance(name, amount):
 def update_level(name):
     conn = connect()
     cursor = conn.cursor()
-    cursor.execute("UPDATE users SET level = level + 1 WHERE name = ?", (name,))
+    cursor.execute("UPDATE users SET level = level + 1, xp = 0 WHERE name = ?", (name,))
     conn.commit()
     conn.close()
 def update_xp(name, xp_gain):

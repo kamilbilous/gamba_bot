@@ -50,14 +50,6 @@ async def on_voice_state_update(member, before, after):
     if before.channel is None and after.channel is not None:
         user_voice_times[name] = time.time()
 
-    elif before.channel is not None and after.channel is None:
-        if name in user_voice_times:
-            join_time = user_voice_times.pop(name)
-            leave_time = time.time()
-            duration = leave_time - join_time
-
-            xp_gained = duration/15
-            update_xp(name, xp_gained)
 
 @tasks.loop(seconds=5)  # Loop every 5 seconds
 async def update_xp_loop():
@@ -185,7 +177,8 @@ async def handle_work(message, username, *_):
 
 
 async def handle_stats(message, username, *_):
-    stats = get_stats(username)
+    stats = get_user(username)
+    stats_2 = get_stats(username)
     xp_needed = 100 * stats[2]
     embed = discord.Embed(
         title="**STATS**",
