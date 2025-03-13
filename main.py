@@ -117,9 +117,9 @@ async def on_message(message):
         if content.startswith(command):
             await handler(message, username, auth_id, content[len(command):].strip())
             return
-async def handle_shop(message):
+async def handle_shop(message, username, auth_id, content):
     await shop_main_page(message)
-async def handle_buy(message,username,content):
+async def handle_buy(message, username, auth_id, content):
     parts = content.split()
     if len(parts) != 1:
         await message.reply("❌ Invalid format. Use: $buy <product number>")

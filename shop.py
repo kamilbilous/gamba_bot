@@ -14,10 +14,10 @@ async def shop_main_page(message):
                     "4. Tip the dealer - pay for the dealer's therapy **777 sancoins**\n",
         colour=discord.Colour.purple()
     )
-    message.reply(embed=embed)
+    await message.reply(embed=embed)
 
 async def buy_pic_perms(message,username):
-    balance = get_balance(username)
+    balance = get_balance(username)[0]
     amount = 10000
 
     if balance < amount:
@@ -25,7 +25,7 @@ async def buy_pic_perms(message,username):
     else:
         if pic_perms not in [role.id for role in message.author.roles]:
             update_balance(username, -amount)
-            message.author.add_roles(pic_perms)
+            await message.author.add_roles(pic_perms)
             embed = discord.Embed(
                 title="**Success**",
                 description="You have been granted pic perms!",
@@ -37,13 +37,13 @@ async def buy_pic_perms(message,username):
             return
 async def buy_cannon_minion(message,username):
     amount = 100000
-    balance = get_balance(username)
+    balance = get_balance(username)[0]
     if balance < amount:
         await message.reply(f"You don't have enough sancoins. Your balance is **{balance} sancoins**")
     else:
         if cannon_minion not in [role.id for role in message.author.roles]:
             update_balance(username, -amount)
-            message.author.add_roles(cannon_minion)
+            await message.author.add_roles(cannon_minion)
             embed = discord.Embed(
                 title="**Success**",
                 description="You have been granted a cannon minion!",
@@ -55,13 +55,13 @@ async def buy_cannon_minion(message,username):
             return
 async def buy_millionaire(message,username):
     amount = 1000000
-    balance = get_balance(username)
+    balance = get_balance(username)[0]
     if balance < amount:
         await message.reply(f"You don't have enough sancoins. Your balance is **{balance} sancoins**")
     else:
         if millionaire not in [role.id for role in message.author.roles]:
             update_balance(username,-amount)
-            message.author.add_roles(millionaire)
+            await message.author.add_roles(millionaire)
             embed = discord.Embed(
                 title="**Success**",
                 description="You have become a millionaire!",
@@ -73,10 +73,11 @@ async def buy_millionaire(message,username):
             return
 async def buy_tip(message,username):
     amount = 777
-    balance = get_balance(username)
+    balance = get_balance(username)[0]
     if balance < amount:
-        message.reply(f"You don't have enough sancoins. Your balance is **{balance} sancoins**")
+        await message.reply(f"You don't have enough sancoins. Your balance is **{balance} sancoins**")
     else:
+        update_balance(username,-amount)
         embed = discord.Embed(
             title="**Thank you!**",
             description="**Thank you for the tip!**",
