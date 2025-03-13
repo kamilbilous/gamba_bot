@@ -20,12 +20,14 @@ def init_db():
       CREATE TABLE IF NOT EXISTS stats (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           name TEXT UNIQUE,
+          balance INTEGER DEFAULT 0,
           level INTEGER DEFAULT 1,
           xp INTEGER DEFAULT 0,
           wins INTEGER DEFAULT 0,
           losses INTEGER DEFAULT 0,
           winrate REAL DEFAULT 0.0,
           FOREIGN KEY (name) REFERENCES users (name),
+          foreign key (balance) REFERENCES levels (balance),
           foreign key (level) REFERENCES users (level),
           FOREIGN KEY (xp) REFERENCES users (xp),
           FOREIGN KEY (level) REFERENCES users (level)
@@ -74,7 +76,7 @@ def get_user(name):
     conn = connect()
     cursor = conn.cursor()
 
-    cursor.execute("SELECT * FROM users WHERE name = ?", (name,))
+    cursor.execute("SELECT id, name, balance, level,xp FROM users WHERE name = ?", (name,))
     user = cursor.fetchone()
 
     if user is None:
@@ -105,12 +107,12 @@ def get_stats(name):
     conn = connect()
     cursor = conn.cursor()
 
-    cursor.execute("SELECT * FROM stats WHERE name = ?", (name,))
+    cursor.execute("SELECT id, name,balance,level,xp, wins, losses, winrate FROM stats WHERE name = ?", (name,))
     stats = cursor.fetchone()
 
     if stats is None:
-        cursor.execute("INSERT INTO stats (id, name,level,xp, wins, losses, winrate) VALUES (?, ?, ?, ?, ?,?,?)",
-                       (get_user(name)[0], name, 1,0,0, 0, 0.0))
+        cursor.execute("INSERT INTO stats (id, name,balance,level,xp, wins, losses, winrate) VALUES (?, ?, ?, ?, ?,?,?,?)",
+                       (get_user(name)[0], name, 0,1,0,0, 0, 0.0))
         conn.commit()
         return get_stats(name)  # Fetch again
 

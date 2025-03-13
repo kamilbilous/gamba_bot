@@ -61,22 +61,19 @@ async def on_voice_state_update(member, before, after):
 
 @tasks.loop(seconds=5)  # Loop every 5 seconds
 async def update_xp_loop():
-    # Go through all users in the voice channel and update XP
     for name, join_time in user_voice_times.items():
-        user = get_user(name)  # Function to fetch user by ID
+        user = get_user(name)
         if user:
             user_id, name, balance, level, xp = user
             current_time = time.time()
             duration = current_time - join_time
-            xp_gained = duration / 15  # XP gained based on time
+            xp_gained = duration / 15
 
-            # Update XP every 5 seconds
             update_xp(name, xp_gained)
         if level_up(name):
             member = discord.utils.get(bot.get_all_members(), name=name)
             curr_level = get_level(name)
             if member:
-                # Create the embed
                 embed = discord.Embed(
                     title="**LEVEL UP**",
                     description=f"Congratulations {member.mention}, you have leveled up to level **{curr_level}**!",
@@ -103,7 +100,8 @@ async def on_message(message):
         "$balance": handle_balance,
         "$bal": handle_balance,
         "$work": handle_work,
-        "$stats": handle_stats
+        "$stats": handle_stats,
+        "$help" : handle_help
     }
 
     # Detect command and execute corresponding function
@@ -129,6 +127,17 @@ async def reply_with_result(message, result):
         await message.reply(result)
 
 
+async def handle_help(message, username, auth_id, content):
+    embed = discord.Embed(
+        title="**Help**",
+        description="**$work** - gives anywhere from 100 to 700 sancoins\n"
+                    "**$roulette** - simulates a game of roulette. Example: $roulette red 100\n"
+                    "**$coinflip** or **$cf** - simulates a coin toss. Example: $coinflip heads 100\n"
+                    "**$stats** - shows your stats\n"
+                    "**$bal** or **$balance** - shows your balance",
+        color = discord.Color.blurple()
+    )
+    await message.reply(embed=embed)
 
 async def handle_roulette(message, username, auth_id, content):
     bet_choice, bet_value = parse_bet_command(content)
@@ -159,8 +168,8 @@ async def handle_coinflip(message, username, auth_id, content):
 
 
 async def handle_balance(message, username, *_):
-    balance = get_balance(username)
-    embed = discord.Embed(title="**BALANCE**", description=f"Your balance is **{balance}**!")
+    balance = get_balance(username)[0]
+    embed = discord.Embed(title="**BALANCE**", description=f"Your balance is **{balance} sancoins** !", colour=discord.Color.blue())
     await message.reply(embed=embed)
 
 
@@ -171,17 +180,19 @@ async def handle_work(message, username, *_):
 
 async def handle_stats(message, username, *_):
     stats = get_stats(username)
-    xp_needed = 100 * stats[2]
+    xp_needed = 100 * stats[3]
     embed = discord.Embed(
         title="**STATS**",
         description=(
             f"**Name**: {stats[1]}\n"
-            f"**Level**: {stats[2]}\n"
-            f"**XP**: {stats[3]} / {xp_needed}\n"
-            f"**Wins**: {stats[4]}\n"
-            f"**Losses**: {stats[5]}\n"
-            f"**Winrate**: {stats[6]}%"
-        )
+            f"**Level**: {stats[3]}\n"
+            f"**Balance**: {stats[2]}\n"
+            f"**XP**: {stats[4]} / {xp_needed}\n"
+            f"**Wins**: {stats[5]}\n"
+            f"**Losses**: {stats[6]}\n"
+            f"**Winrate**: {stats[7]}%"
+        ),
+        color=discord.Color.brand_green()
     )
     await message.reply(embed=embed)
 
