@@ -31,7 +31,7 @@ async def work(username):
     new_balance = database.get_user(name)[3]
     embed = discord.Embed(
         title= "Paycheck",
-        description= f"Congratulation! You've earned {paycheck} sancoins! Your balance is {new_balance}.",
+        description= f"Congratulation! You've earned **{paycheck} sancoins**! Your balance is **{new_balance} sancoins**.",
         colour=discord.Colour.green()
     )
     work_cooldowns[username] = current_time
