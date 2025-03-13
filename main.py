@@ -168,12 +168,15 @@ async def handle_addmoney(message, username, auth_id, content):
     await message.reply(f"✅ Successfully added **{amount} sancoins** to {member.mention}. New balance: **{new_balance} sancoins**")
 
 
-def parse_bet_command(content):
+def parse_bet_command(username,content):
+    username = message.author
     parts = content.split()
     if len(parts) != 2:
         return None, None
     bet_choice, bet_value = parts[0].lower(), parts[1]
     if re.fullmatch(bets, bet_value) or bet_value == "all":
+        if bet_value == "all":
+            bet_value = get_balance(username)
         return bet_choice, int(bet_value)
 
 
@@ -198,7 +201,7 @@ async def handle_help(message):
     await message.reply(embed=embed)
 
 async def handle_roulette(message, username, auth_id, content):
-    bet_choice, bet_value = parse_bet_command(content)
+    bet_choice, bet_value = parse_bet_command(username,content)
     if bet_value == "all":
         bet_value = get_balance(username)[0]
 
@@ -218,7 +221,7 @@ async def handle_roulette(message, username, auth_id, content):
 
 
 async def handle_coinflip(message, username, auth_id, content):
-    bet_choice, bet_value = parse_bet_command(content)
+    bet_choice, bet_value = parse_bet_command(username,content)
     if bet_value == "all":
         bet_value = get_balance(username)[0]
     if not bet_value:
