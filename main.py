@@ -39,9 +39,9 @@ async def on_ready():
         GUILD = guild.id
         print(f"Bot is connected to {guild.name} (ID: {GUILD})")
 
-        # Fetch and insert all members into the database
         insert_users_into_db(guild.members)
-    update_xp_loop.start()
+    if not update_xp_loop.is_running():
+        update_xp_loop.start()
 @bot.event
 async def on_voice_state_update(member, before, after):
     user = get_user(member.name)
@@ -63,6 +63,8 @@ async def on_voice_state_update(member, before, after):
 async def update_xp_loop():
     for name, join_time in user_voice_times.items():
         user = get_user(name)
+        if not user:
+            print("User not found")
         if user:
             user_id, name, balance, level, xp = user
             current_time = time.time()
@@ -79,7 +81,7 @@ async def update_xp_loop():
                     description=f"Congratulations {member.mention}, you have leveled up to level **{curr_level}**!",
                 )
 
-                channel_id = 14234
+                channel_id = 1349555789139935253
                 channel = bot.get_channel(channel_id)
                 await channel.send(embed=embed)
 
@@ -108,7 +110,7 @@ async def on_message(message):
     for command, handler in command_handlers.items():
         if content.startswith(command):
             await handler(message, username, auth_id, content[len(command):].strip())
-            return  # Prevent further processing
+            return
 
 
 def parse_bet_command(content):
@@ -127,7 +129,7 @@ async def reply_with_result(message, result):
         await message.reply(result)
 
 
-async def handle_help(message, username, auth_id, content):
+async def handle_help(message):
     embed = discord.Embed(
         title="**Help**",
         description="**$work** - gives anywhere from 100 to 700 sancoins\n"
@@ -141,6 +143,8 @@ async def handle_help(message, username, auth_id, content):
 
 async def handle_roulette(message, username, auth_id, content):
     bet_choice, bet_value = parse_bet_command(content)
+    if bet_value == "all":
+        bet_value = get_balance(username)[0]
     if not bet_value:
         await message.reply("❌ Invalid command format. Use: `$roulette <color> <amount>`")
         return
@@ -155,6 +159,8 @@ async def handle_roulette(message, username, auth_id, content):
 
 async def handle_coinflip(message, username, auth_id, content):
     bet_choice, bet_value = parse_bet_command(content)
+    if bet_value == "all":
+        bet_value = get_balance(username)[0]
     if not bet_value:
         await message.reply("❌ Invalid command format. Use: `$coinflip <heads/tails> <amount>`")
         return
@@ -180,13 +186,13 @@ async def handle_work(message, username, *_):
 
 async def handle_stats(message, username, *_):
     stats = get_stats(username)
-    xp_needed = 100 * stats[3]
+    xp_needed = 100 * stats[2]
     embed = discord.Embed(
         title="**STATS**",
         description=(
             f"**Name**: {stats[1]}\n"
-            f"**Level**: {stats[3]}\n"
-            f"**Balance**: {stats[2]}\n"
+            f"**Level**: {stats[2]}\n"
+            f"**Balance**: {get_balance(username)[0]} sancoins\n"
             f"**XP**: {stats[4]} / {xp_needed}\n"
             f"**Wins**: {stats[5]}\n"
             f"**Losses**: {stats[6]}\n"

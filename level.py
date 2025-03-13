@@ -1,4 +1,3 @@
-import discord
 from database import update_level,update_xp,get_user
 
 async def level_up(username):

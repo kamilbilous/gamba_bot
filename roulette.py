@@ -1,7 +1,7 @@
 import random
 import database
 import discord
-
+#TODO : add all-in as an option
 
 async def game(username, bet, choice, auth_id):
     user = database.get_user(username)

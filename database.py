@@ -107,14 +107,14 @@ def get_stats(name):
     conn = connect()
     cursor = conn.cursor()
 
-    cursor.execute("SELECT id, name,balance,level,xp, wins, losses, winrate FROM stats WHERE name = ?", (name,))
+    cursor.execute("SELECT id, name,level,balance,xp, wins, losses, winrate FROM stats WHERE name = ?", name)
     stats = cursor.fetchone()
 
     if stats is None:
-        cursor.execute("INSERT INTO stats (id, name,balance,level,xp, wins, losses, winrate) VALUES (?, ?, ?, ?, ?,?,?,?)",
+        cursor.execute("INSERT INTO stats (id, name,level,balance,xp, wins, losses, winrate) VALUES (?, ?, ?, ?, ?,?,?,?)",
                        (get_user(name)[0], name, 0,1,0,0, 0, 0.0))
         conn.commit()
-        return get_stats(name)  # Fetch again
+        return get_stats(name)
 
     conn.close()
     return stats
