@@ -1,9 +1,10 @@
 import discord
 import os
 import re
+import sqlite3
 from discord.ext import commands,tasks
 import time
-from database import insert_users_into_db, insert_server, get_user, update_xp, get_stats, get_level, get_balance
+from database import insert_users_into_db, insert_server, get_user, update_xp, get_stats, get_level, get_balance,update_balance
 from level import level_up
 from roulette import game
 from dotenv import load_dotenv
@@ -20,6 +21,7 @@ intents.members = True
 intents.message_content = True
 intents.voice_states = True
 bot = commands.Bot(command_prefix="$", intents=intents)
+ALLOWED_ROLE_ID = 1119977642901377058
 bets = r"^\d+$"
 valid_colors = ["red", "black", "green"]
 valid_choices = ["heads", "tails"]
@@ -144,6 +146,15 @@ async def handle_roulette(message, username, auth_id, content):
     bet_choice, bet_value = parse_bet_command(content)
     if bet_value == "all":
         bet_value = get_balance(username)[0]
+    try:
+        bet_value = int(bet_value)  # Ensure bet value is an integer
+    except ValueError:
+        await message.reply("❌ Bet amount must be a number or 'all'.")
+        return
+
+    if bet_value <= 0:
+        await message.reply("❌ You must bet a positive amount.")
+        return
     if not bet_value:
         await message.reply("❌ Invalid command format. Use: `$roulette <color> <amount>`")
         return
@@ -201,6 +212,45 @@ async def handle_stats(message, username, *_):
         color=discord.Color.brand_green()
     )
     await message.reply(embed=embed)
+@bot.command()
+async def addmoney(ctx, member: discord.Member, amount: int):
 
+    if ALLOWED_ROLE_ID not in [role.id for role in ctx.author.roles]:
+        await ctx.reply("❌ You don't have permission to use this command.")
+        return
+
+    if not get_user(member.name):  # Check if the target user exists in the database
+        await ctx.reply(f"❌ User `{member.name}` does not exist.")
+        return
+
+    update_balance(member.name, amount)
+    new_balance = get_balance(member.name)[0]
+
+    await ctx.reply(f"✅ Successfully added {amount} sancoins to {member.mention}. New balance: {new_balance}")
+@bot.command()
+async def resetdb(ctx):
+    if ALLOWED_ROLE_ID not in [role.id for role in ctx.author.roles]:
+        await ctx.reply("❌ You don't have permission to use this command.")
+        return
+
+    try:
+        conn = sqlite3.connect("users.db")  # Replace with your actual DB file
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            UPDATE users
+            SET balance = 0, level = 1, xp = 0
+        """)
+        cursor.execute("""
+            UPDATE stats
+            SET wins = 0, losses = 0, winrate = 0.0
+        """)
+        conn.commit()
+        conn.close()
+
+        await ctx.reply("✅ The database has been successfully reset.")
+
+    except Exception as e:
+        await ctx.reply(f"❌ An error occurred: {str(e)}")
 bot.run(os.getenv('TOKEN'))
 
