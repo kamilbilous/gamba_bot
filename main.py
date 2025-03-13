@@ -174,7 +174,7 @@ def parse_bet_command(content):
         return None, None
     bet_choice, bet_value = parts[0].lower(), parts[1]
     if re.fullmatch(bets, bet_value) or bet_value == "all":
-        return bet_choice, bet_value
+        return bet_choice, int(bet_value)
 
 
 
