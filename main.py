@@ -104,7 +104,9 @@ async def on_message(message):
         "$bal": handle_balance,
         "$work": handle_work,
         "$stats": handle_stats,
-        "$help" : handle_help
+        "$help" : handle_help,
+        "$addmoney" : handle_addmoney,
+        "$resetdb" : resetdb
     }
 
     # Detect command and execute corresponding function
@@ -112,6 +114,34 @@ async def on_message(message):
         if content.startswith(command):
             await handler(message, username, auth_id, content[len(command):].strip())
             return
+
+async def handle_addmoney(message, username, auth_id, content):
+    if ALLOWED_ROLE_ID not in [role.id for role in message.author.roles]:
+        await message.reply("❌ You don't have permission to use this command.")
+        return
+    parts = content.split()
+    if len(parts) != 2:
+        await message.reply("❌ Invalid format. Use: `$addmoney @User <amount>`")
+        return
+    try:
+        amount = int(parts[1])
+    except ValueError:
+        await message.reply("❌ Amount must be a number.")
+        return
+    if not message.mentions:
+        await message.reply("❌ You must mention a valid user.")
+        return
+
+    member = message.mentions[0]
+
+    if not get_user(member.name):
+        await message.reply(f"❌ User `{member.name}` does not exist in the database.")
+        return
+
+    update_balance(member.name, amount)
+    new_balance = get_balance(member.name)[0]
+
+    await message.reply(f"✅ Successfully added {amount} sancoins to {member.mention}. New balance: {new_balance}")
 
 
 def parse_bet_command(content):
@@ -212,7 +242,7 @@ async def handle_stats(message, username, *_):
         color=discord.Color.brand_green()
     )
     await message.reply(embed=embed)
-@bot.command()
+
 async def addmoney(ctx, member: discord.Member, amount: int):
 
     if ALLOWED_ROLE_ID not in [role.id for role in ctx.author.roles]:
@@ -227,7 +257,7 @@ async def addmoney(ctx, member: discord.Member, amount: int):
     new_balance = get_balance(member.name)[0]
 
     await ctx.reply(f"✅ Successfully added {amount} sancoins to {member.mention}. New balance: {new_balance}")
-@bot.command()
+
 async def resetdb(ctx):
     if ALLOWED_ROLE_ID not in [role.id for role in ctx.author.roles]:
         await ctx.reply("❌ You don't have permission to use this command.")

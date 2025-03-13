@@ -28,7 +28,7 @@ async def work(username):
     user_id, name, balance, level, xp = user
     paycheck = random.randint(100, 700)
     database.update_balance(name,paycheck)
-    new_balance = database.get_user(name)[2]
+    new_balance = database.get_user(name)[3]
     embed = discord.Embed(
         title= "Paycheck",
         description= f"Congratulation! You've earned {paycheck} sancoins! Your balance is {new_balance}.",
