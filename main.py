@@ -175,7 +175,7 @@ def parse_bet_command(username,content):
     bet_choice, bet_value = parts[0].lower(), parts[1]
     if re.fullmatch(bets, bet_value) or bet_value == "all":
         if bet_value == "all":
-            bet_value = get_balance(username)
+            bet_value = get_balance(username)[0]
         return bet_choice, int(bet_value)
 
 
