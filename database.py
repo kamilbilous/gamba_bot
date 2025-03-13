@@ -150,7 +150,14 @@ def update_stats(name, won):
         cursor.execute("UPDATE stats SET losses = losses + 1 WHERE name = ?", (name,))
 
     # Update winrate
-    cursor.execute("UPDATE stats SET winrate = (wins * 100.0) / (wins + losses) WHERE name = ?", (name,))
+    cursor.execute("""
+            UPDATE stats 
+            SET winrate = CASE 
+                WHEN (wins + losses) > 0 THEN (wins * 100.0) / (wins + losses)
+                ELSE 0.0 
+            END 
+            WHERE name = ?
+        """, (name,))
 
     conn.commit()
     conn.close()
