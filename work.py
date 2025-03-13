@@ -25,7 +25,7 @@ async def work(username):
             )
             return embed2
     user = database.get_user(username)
-    user_id, name, balance, level, xp = user
+    user_id, name, level, balance, xp = user
     paycheck = random.randint(100, 700)
     database.update_balance(name,paycheck)
     new_balance = database.get_user(name)[3]
