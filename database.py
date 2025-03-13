@@ -107,7 +107,7 @@ def get_stats(name):
     conn = connect()
     cursor = conn.cursor()
 
-    cursor.execute("SELECT id, name,level,balance,xp, wins, losses, winrate FROM stats WHERE name = ?", name)
+    cursor.execute("SELECT id, name,level,balance,xp, wins, losses, winrate FROM stats WHERE name = ?", [name])
     stats = cursor.fetchone()
 
     if stats is None:
