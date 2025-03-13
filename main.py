@@ -72,9 +72,9 @@ async def update_xp_loop():
             xp_gained = duration / 15
 
             update_xp(name, xp_gained)
-        if level_up(name):
+        if await level_up(name):
             member = discord.utils.get(bot.get_all_members(), name=name)
-            curr_level = get_level(name)
+            curr_level = get_level(name)[0]
             if member:
                 embed = discord.Embed(
                     title="**LEVEL UP**",
