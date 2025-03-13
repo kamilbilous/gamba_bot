@@ -26,7 +26,7 @@ async def game(username, bet, choice, auth_id):
             database.update_stats(name, won=True)
 
             # Fetch updated balance
-            new_balance = database.get_user(name)[2]
+            new_balance = database.get_user(name)[3]
             embed = discord.Embed(
                 title = "Roulette result",
                 description = f"The ball landed on **{winning_color}**! You won **{win_amount} sancoins**. Your new balance is **{new_balance} sancoins**.",
@@ -38,7 +38,7 @@ async def game(username, bet, choice, auth_id):
             database.update_stats(name, won=False)
 
             # Fetch updated balance
-            new_balance = database.get_user(name)[2]
+            new_balance = database.get_user(name)[3]
             embed = discord.Embed(
                 title="Roulette result",
                 description=f"The ball landed on **{winning_color}**! You lost **{bet} sancoins**. Your new balance is **{new_balance} sancoins**.",

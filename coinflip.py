@@ -19,7 +19,7 @@ async def coinflip(username, bet, choice, auth_id):
             database.update_balance(name, win_amount)
             database.update_stats(name, won=True)
 
-            new_balance = database.get_user(name)[2]
+            new_balance = database.get_user(name)[3]
             embed = discord.Embed(
                 title="Coinflip result",
                 description=f"The coin landed on **{winning_choice}**! You won **{win_amount} sancoins**. Your new balance is **{new_balance} sancoins**.",
@@ -31,7 +31,7 @@ async def coinflip(username, bet, choice, auth_id):
             database.update_stats(name, won=False)
 
             # Fetch updated balance
-            new_balance = database.get_user(name)[2]
+            new_balance = database.get_user(name)[3]
             embed = discord.Embed(
                 title="Roulette result",
                 description=f"The coin landed on **{winning_choice}**! You lost **{bet} sancoins**. Your new balance is **{new_balance} sancoins**.",
