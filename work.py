@@ -34,5 +34,5 @@ async def work(username):
         description= f"Congratulation! You've earned {paycheck} sancoins! Your balance is {new_balance}.",
         colour=discord.Colour.green()
     )
-    work_cooldowns[username] = cooldown_period
+    work_cooldowns[username] = current_time
     return embed
