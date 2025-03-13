@@ -61,7 +61,7 @@ async def update_xp_loop():
             user_id, name, balance, level, xp = user
             current_time = time.time()
             duration = current_time - join_time
-            xp_gained = duration / 15
+            xp_gained = duration // 15
 
             update_xp(name, xp_gained)
         if await level_up(name):
@@ -186,7 +186,7 @@ async def handle_stats(message, username, *_):
             f"**Name**: {stats[1]}\n"
             f"**Level**: {stats[2]}\n"
             f"**Balance**: {get_balance(username)[0]} sancoins\n"
-            f"**XP**: {stats[4]} / {xp_needed}\n"
+            f"**XP**: {int(stats[4])} / {xp_needed}\n"
             f"**Wins**: {stats_2[5]}\n"
             f"**Losses**: {stats_2[6]}\n"
             f"**Winrate**: {stats_2[7]}%"
