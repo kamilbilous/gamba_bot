@@ -70,7 +70,7 @@ async def update_xp_loop():
                 elapsed_since_last_update = current_time - last_update_time
 
                 if elapsed_since_last_update >= 15:
-                    xp_gained = duration // 15
+                    xp_gained = elapsed_since_last_update // 15
                     update_xp(name, xp_gained)
                     user_last_xp_update[name] = current_time
         if await level_up(name):
