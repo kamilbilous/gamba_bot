@@ -169,7 +169,6 @@ async def handle_addmoney(message, username, auth_id, content):
 
 
 def parse_bet_command(username,content):
-    username = message.author
     parts = content.split()
     if len(parts) != 2:
         return None, None
