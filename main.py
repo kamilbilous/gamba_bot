@@ -4,7 +4,7 @@ import re
 import sqlite3
 from discord.ext import commands,tasks
 import time
-from database import insert_users_into_db, insert_server, get_user, update_xp, get_stats, get_level, get_balance,update_balance
+from database import insert_users_into_db, insert_server, get_user, update_xp, get_stats, get_level,sort_leaderboard, get_balance,update_balance
 from shop import shop_main_page, buy_tip, buy_millionaire, buy_pic_perms, buy_cannon_minion
 from level import level_up
 from roulette import game
@@ -109,7 +109,10 @@ async def on_message(message):
         "$addmoney" : handle_addmoney,
         "$resetdb" : resetdb,
         "$shop" : handle_shop,
-        "$buy" : handle_buy
+        "$buy" : handle_buy,
+        "$leaderboard" : handle_lb,
+        "$lb" : handle_lb,
+        "$top" : handle_lb
     }
 
     # Detect command and execute corresponding function
@@ -117,8 +120,36 @@ async def on_message(message):
         if content.startswith(command):
             await handler(message, username, auth_id, content[len(command):].strip())
             return
+
+
+def parse_bet_command(username,content):
+    parts = content.split()
+    if len(parts) != 2:
+        return None, None
+    bet_choice, bet_value = parts[0].lower(), parts[1]
+    if re.fullmatch(bets, bet_value) or bet_value == "all":
+        if bet_value == "all":
+            bet_value = get_balance(username)[0]
+        return bet_choice, int(bet_value)
+
+
+
+async def reply_with_result(message, result):
+    if isinstance(result, discord.Embed):
+        await message.reply(embed=result)
+    else:
+        await message.reply(result)
+
+async def handle_lb(message, username, auth_id, content):
+    parts = content.split()
+    if len(parts) != 1:
+        await sort_leaderboard(message,choice="money")
+    choice = parts[0]
+    await sort_leaderboard(message, choice)
+
 async def handle_shop(message, username, auth_id, content):
     await shop_main_page(message)
+
 async def handle_buy(message, username, auth_id, content):
     parts = content.split()
     if len(parts) != 1:
@@ -167,34 +198,17 @@ async def handle_addmoney(message, username, auth_id, content):
 
     await message.reply(f"✅ Successfully added **{amount} sancoins** to {member.mention}. New balance: **{new_balance} sancoins**")
 
-
-def parse_bet_command(username,content):
-    parts = content.split()
-    if len(parts) != 2:
-        return None, None
-    bet_choice, bet_value = parts[0].lower(), parts[1]
-    if re.fullmatch(bets, bet_value) or bet_value == "all":
-        if bet_value == "all":
-            bet_value = get_balance(username)[0]
-        return bet_choice, int(bet_value)
-
-
-
-async def reply_with_result(message, result):
-    if isinstance(result, discord.Embed):
-        await message.reply(embed=result)
-    else:
-        await message.reply(result)
-
-
-async def handle_help(message):
+async def handle_help(message, username, auth_id, content):
     embed = discord.Embed(
         title="**Help**",
         description="**$work** - gives anywhere from 100 to 700 sancoins\n"
                     "**$roulette** - simulates a game of roulette. Example: $roulette red 100\n"
                     "**$coinflip** or **$cf** - simulates a coin toss. Example: $coinflip heads 100\n"
                     "**$stats** - shows your stats\n"
-                    "**$bal** or **$balance** - shows your balance",
+                    "**$bal** or **$balance** - shows your balance\n"
+                    "**$shop** - shows the shop\n"
+                    "**$buy** - lets you buy sth from the shop. Example **buy 1**\n"
+                    "**$leaderboard/$lb/$top - shows you top 10 users sorted by money or level. Example : $top money",
         color = discord.Color.blurple()
     )
     await message.reply(embed=embed)
@@ -268,9 +282,9 @@ async def handle_stats(message, username, *_):
 
 
 
-async def resetdb(ctx):
-    if ALLOWED_ROLE_ID not in [role.id for role in ctx.author.roles]:
-        await ctx.reply("❌ You don't have permission to use this command.")
+async def resetdb(message, username, auth_id, content):
+    if ALLOWED_ROLE_ID not in [role.id for role in message.author.roles]:
+        await message.reply("❌ You don't have permission to use this command.")
         return
 
     try:
@@ -288,9 +302,9 @@ async def resetdb(ctx):
         conn.commit()
         conn.close()
 
-        await ctx.reply("✅ The database has been successfully reset.")
+        await message.reply("✅ The database has been successfully reset.")
 
     except Exception as e:
-        await ctx.reply(f"❌ An error occurred: {str(e)}")
+        await message.reply(f"❌ An error occurred: {str(e)}")
 bot.run(os.getenv('TOKEN'))
 

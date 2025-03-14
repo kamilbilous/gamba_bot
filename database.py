@@ -1,4 +1,5 @@
 import sqlite3
+import discord
 
 def connect():
     return sqlite3.connect("users.db")
@@ -118,6 +119,66 @@ def get_stats(name):
 
     conn.close()
     return stats
+
+
+async def sort_leaderboard(message, choice):
+    if choice not in ["money", "level"]:
+        await message.reply("❌ Invalid choice! Use `money` or `level`.")
+        return
+
+    if choice == "money":
+        try:
+            with sqlite3.connect("users.db") as conn:
+                cursor = conn.cursor()
+                cursor.execute("""
+                    SELECT name, level, balance from users
+                    ORDER BY balance DESC
+                    LIMIT 10
+                """)
+                users = cursor.fetchall()
+            embed = discord.Embed(
+                title="Leaderboard",
+                description= "TOP 10 users sorted by balance\n",
+                colour=discord.Colour.gold()
+            )
+            for rank, (name, balance, level) in enumerate(users, start=1):
+                embed.add_field(
+                    name=f"#{rank} {name}",
+                    value=f"**Balance: {balance} sancoins** \n📈 **Level: `{level}`**",
+                    inline=False
+                )
+
+            await message.reply(embed=embed)
+        except Exception as e:
+            print(e)
+
+    if choice == "level":
+        try:
+            with sqlite3.connect("users.db") as conn:
+                cursor = conn.cursor()
+                cursor.execute("""
+                    SELECT name, level, balance from users
+                    ORDER BY level DESC
+                    LIMIT 10
+                """)
+                users = cursor.fetchall()
+            embed = discord.Embed(
+                title="Leaderboard",
+                description= "TOP 10 users sorted by level\n",
+                colour=discord.Colour.gold()
+            )
+            for rank, (name, balance, level) in enumerate(users, start=1):
+                embed.add_field(
+                    name=f"#{rank} {name}",
+                    value=f"**Level: {level} ** \n📈 **Balance: `{balance} sancoins`**",
+                    inline=False
+                )
+
+            await message.reply(embed=embed)
+        except Exception as e:
+            print(e)
+
+
 
 
 # Update user balance
