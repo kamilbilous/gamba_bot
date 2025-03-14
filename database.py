@@ -141,7 +141,7 @@ async def sort_leaderboard(message, choice):
                 description= "TOP 10 users sorted by balance\n",
                 colour=discord.Colour.gold()
             )
-            for rank, (name, balance, level) in enumerate(users, start=1):
+            for rank, (name, level, balance) in enumerate(users, start=1):
                 embed.add_field(
                     name=f"#{rank} {name}",
                     value=f"**Balance: {balance} sancoins** \n📈 **Level: `{level}`**",
@@ -167,7 +167,7 @@ async def sort_leaderboard(message, choice):
                 description= "TOP 10 users sorted by level\n",
                 colour=discord.Colour.gold()
             )
-            for rank, (name, balance, level) in enumerate(users, start=1):
+            for rank, (name, level, balance) in enumerate(users, start=1):
                 embed.add_field(
                     name=f"#{rank} {name}",
                     value=f"**Level: {level} ** \n📈 **Balance: `{balance} sancoins`**",
