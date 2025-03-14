@@ -142,9 +142,7 @@ async def reply_with_result(message, result):
 
 async def handle_lb(message, username, auth_id, content):
     parts = content.split()
-    if len(parts) != 1:
-        await sort_leaderboard(message,choice="money")
-    choice = parts[0]
+    choice = parts[0] if parts else "money"
     await sort_leaderboard(message, choice)
 
 async def handle_shop(message, username, auth_id, content):
